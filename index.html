@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartão de Natal</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f8ff;
+      font-family: 'Arial', sans-serif;
+      position: relative;
+    }
+
+    .card {
+      width: 350px; /* Tamanho do cartão */
+      height: 500px; /* Tamanho do cartão */
+      position: relative;
+      cursor: pointer;
+      transition: transform 1s ease-in-out;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card img.capa {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .inside {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end; /* Posiciona o conteúdo para a base */
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    }
+
+    .inside img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1; /* Coloca a imagem no fundo */
+    }
+
+    .inside h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: white;
+      text-shadow: 2px 2px 5px #000;
+    }
+
+    .inside p {
+      font-size: 18px;
+      line-height: 1.5;
+      color: white;
+      text-shadow: 2px 2px 5px #000;
+      margin-bottom: 30px; /* Adiciona uma margem para o texto não grudar na parte inferior */
+    }
+
+    .card.open .inside {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .card.open img.capa {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Ajuste para o "Clique aqui" ficar fora do cartão, rente à borda inferior */
+    .click-here {
+      position: absolute;
+      bottom: 10px; /* Agora ele está rente à borda inferior */
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.7);
+      pointer-events: auto;
+      z-index: 1;
+    }
+
+    /* Garante que o "Clique aqui" fique visível fora do cartão */
+    .card.open + .click-here {
+      display: none; /* Esconde o "Clique aqui" quando o cartão for aberto */
+    }
+  </style>
+</head>
+<body>
+  <!-- "Clique aqui" Fora do Cartão -->
+  <div class="click-here" onclick="openCard()">Clique aqui</div>
+
+  <div class="card" onclick="openCard()">
+    <!-- Capa -->
+    <img class="capa" src="../cartão de natal/img/capa.jpg" alt="Capa do Cartão">
+
+    <!-- Dentro -->
+    <div class="inside">
+      <img src="../cartão de natal/img/dentro3.jpg" alt="Fundo de Natal"> <!-- Imagem de dentro -->
+      <p id="message"></p>
+    </div>
+  </div>
+
+  <audio id="jingle-bell" src="../cartão de natal/musica/jingle-bells-violin-loop-8645.mp3"></audio>
+
+  <script>
+    // Lista de frases
+    const phrases = [
+      "Que o seu Natal seja cheio de paz, amor e felicidade. – Neicyr",
+    "Neste Natal, que a luz da esperança ilumine sua vida. – Neicyr",
+    "Que as bênçãos do Natal renovem sua fé e tragam alegria ao seu coração. – Neicyr",
+    "Que neste Natal, o amor seja o maior presente que você possa receber. – Neicyr",
+    "Que a magia do Natal te envolva e traga a felicidade que você merece. – Neicyr",
+    "Desejo um Natal de luz e paz, com muito amor ao redor. – Neicyr",
+    "Que as alegrias do Natal se multipliquem em sua vida. – Neicyr",
+    "Que o espírito do Natal preencha seu coração com alegria e gratidão. – Neicyr",
+    "Que a paz e o amor do Natal estejam presentes em todos os seus dias. – Neicyr",
+    "Que este Natal traga a renovação de todos os seus sonhos. – Neicyr",
+    "Que seu Natal seja iluminado por momentos de felicidade e harmonia. – Neicyr",
+    "Que a paz do Natal toque sua alma e faça de cada momento algo especial. – Neicyr",
+    "Que neste Natal, a esperança seja o seu guia e o amor, o seu caminho. – Neicyr",
+    "Que o Natal seja repleto de sorrisos, abraços e muito carinho. – Neicyr",
+    "Que o Natal seja um momento de união, paz e harmonia em sua vida. – Neicyr",
+    "Que a magia do Natal inspire novos sonhos e realizações. – Neicyr",
+    "Que este Natal traga a verdadeira essência do amor e da amizade. – Neicyr",
+    "Que a beleza do Natal invada sua casa e traga felicidade ao seu lar. – Neicyr",
+    "Que o Natal renove suas esperanças e preencha sua vida com alegrias. – Neicyr",
+    "Que a paz do Natal dure todo o ano e que o amor sempre esteja com você. – Neicyr",
+    "Que o Natal te traga a serenidade para enfrentar os desafios com fé e esperança. – Neicyr",
+    "Que neste Natal você sinta o calor da amizade e o carinho dos que te amam. – Neicyr",
+    "Que o espírito do Natal ilumine sua vida e te dê forças para o novo ano. – Neicyr",
+    "Que o seu Natal seja cheio de risos, abraços e boas lembranças. – Neicyr",
+    "Que neste Natal, os pequenos gestos de carinho tragam grandes alegrias. – Neicyr",
+    "Que a esperança do Natal te inspire a fazer o bem e a espalhar amor. – Neicyr",
+    "Que seu Natal seja repleto de momentos mágicos e inesquecíveis. – Neicyr",
+    "Que o Natal seja uma época para refletir sobre o que realmente importa: o amor. – Neicyr",
+    "Que neste Natal, você se sinta rodeado de pessoas que te amam e que te desejam o melhor. – Neicyr",
+    "Que a paz do Natal esteja em seu coração durante todos os dias do novo ano. – Neicyr",
+    "Que o Natal te traga felicidade e que o amor esteja sempre presente em sua vida. – Neicyr",
+    "Que neste Natal, o melhor presente seja a presença dos que amamos. – Neicyr",
+    "Que a luz do Natal ilumine seus caminhos e te traga novas oportunidades. – Neicyr",
+    "Que neste Natal, você tenha a coragem de seguir seus sonhos e acreditar em você. – Neicyr",
+    "Que a paz do Natal te envolva e traga serenidade para o novo ano que se inicia. – Neicyr",
+    "Que o Natal seja uma época de renovação, de reflexão e de grandes conquistas. – Neicyr",
+    "Que seu Natal seja doce, iluminado e cheio de momentos felizes. – Neicyr",
+    "Que a esperança e a alegria do Natal nunca se apaguem em seu coração. – Neicyr",
+    "Que neste Natal você se sinta mais próximo dos seus sonhos e das suas conquistas. – Neicyr",
+    "Que o Natal te traga mais sabedoria para seguir o seu caminho com fé. – Neicyr",
+    "Que a beleza do Natal preencha sua vida com serenidade e esperança. – Neicyr",
+    "Que neste Natal você receba tudo o que há de melhor no mundo: amor, paz e saúde. – Neicyr",
+    "Que o Natal seja um lembrete de que a verdadeira felicidade está nas pequenas coisas. – Neicyr",
+    "Que o Natal te traga alegria e paz para o novo ano. – Neicyr",
+    "Que a alegria do Natal preencha seu coração e transforme sua vida. – Neicyr",
+    "Que o Natal seja a época de todos os seus sonhos se realizarem. – Neicyr",
+    "Que o Natal seja repleto de momentos de carinho e de paz. – Neicyr",
+    "Que neste Natal você seja abençoado com muito amor e prosperidade. – Neicyr",
+    "Que a magia do Natal te traga novos começos e oportunidades. – Neicyr",
+    "Que o Natal seja uma época de reflexão, de renovação e de grandes conquistas. – Neicyr"
+    ];
+
+    function openCard() {
+      const card = document.querySelector('.card');
+      const message = document.getElementById('message');
+      const audio = document.getElementById('jingle-bell');
+      const clickHere = document.querySelector('.click-here');
+
+      // Abrir cartão
+      card.classList.add('open');
+
+      // Esconder o botão "Clique aqui" quando o cartão for aberto
+      clickHere.style.display = 'none';
+
+      // Frase aleatória
+      const randomIndex = Math.floor(Math.random() * phrases.length);
+      message.textContent = phrases[randomIndex];
+
+      // Música
+      audio.play();
+    }
+  </script>
+</body>
+</html>
